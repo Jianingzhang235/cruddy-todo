@@ -24,16 +24,20 @@ exports.create = (text, callback) => {
 exports.readAll = (callback) => {
   var todos = [];
 
-  fs.readdir(exports.dataDir, 'utf8', (err, files) => {
-    console.log('FILES:', files);
+  fs.readdir('./datastore/data/', 'utf8', (err, files) => {
     if (err) {
-      console.log('CHECK ERROR:', err);
+      console.log(err);
     } else {
       console.log('CHECKING FILES', files);
-      files.forEach(function(file) {
-        todos.push({id: file, text: file});
+
+      var todos = _.map(files, function(file) {
+        console.log('FILE:', file);
+        var id = path.basename(file, '.txt');
+        console.log('ID:', id);
+        return {id: id, text: file};
       });
     }
+    console.log('todos', todos);
     callback(null, todos);
   });
 };
@@ -41,7 +45,7 @@ exports.readAll = (callback) => {
 exports.readOne = (id, callback) => {
   let file = path.join(exports.dataDir, `${id}.txt`);
   fs.readFile(file, (err, item) => {
-    if(err) {
+    if (err) {
       callback(new Error(`No item with id: ${id}`));
     } else {
       // what should be in the callback?
