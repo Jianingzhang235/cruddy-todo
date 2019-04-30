@@ -22,18 +22,15 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
-  var todos = [];
-
   fs.readdir('./datastore/data/', 'utf8', (err, files) => {
     if (err) {
       callback(err);
     } else {
-      // console.log('CHECKING FILES', files);
-
+      console.log('FILES', files);
       var todos = _.map(files, function(file) {
-        // console.log('FILE:', file);
         var id = path.basename(file, '.txt');
-        // console.log('ID:', id);
+        console.log('FILE:', file);
+        console.log('ID:', id);
         return {id: id, text: file};
       });
     }
@@ -46,7 +43,7 @@ exports.readOne = (id, callback) => {
   let file = path.join(exports.dataDir, `${id}.txt`);
   fs.readFile(file, (err, item) => {
     if (err) {
-      callback(err);
+      callback(new Error(`No item with id: ${id}`));
     } else {
       callback(null, {id: id, text: item.toString()});
     }
@@ -54,13 +51,20 @@ exports.readOne = (id, callback) => {
 };
 
 exports.update = (id, text, callback) => {
-  var item = items[id];
-  if (!item) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    items[id] = text;
-    callback(null, { id, text });
-  }
+  let file = path.join(exports.dataDir, `${id}.txt`);
+  fs.readFile(file, (err, item) => {
+    if (!item) {
+      callback(new Error(`No item with id: ${id}`));
+    } else {
+      fs.writeFile(file, text, (err) => {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, { id: id, text: text });
+        }
+      });
+    }
+  });
 };
 
 exports.delete = (id, callback) => {
