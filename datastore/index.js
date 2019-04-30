@@ -26,18 +26,18 @@ exports.readAll = (callback) => {
 
   fs.readdir('./datastore/data/', 'utf8', (err, files) => {
     if (err) {
-      console.log(err);
+      callback(err);
     } else {
-      console.log('CHECKING FILES', files);
+      // console.log('CHECKING FILES', files);
 
       var todos = _.map(files, function(file) {
-        console.log('FILE:', file);
+        // console.log('FILE:', file);
         var id = path.basename(file, '.txt');
-        console.log('ID:', id);
+        // console.log('ID:', id);
         return {id: id, text: file};
       });
     }
-    console.log('todos', todos);
+    // console.log('todos', todos);
     callback(null, todos);
   });
 };
@@ -46,10 +46,9 @@ exports.readOne = (id, callback) => {
   let file = path.join(exports.dataDir, `${id}.txt`);
   fs.readFile(file, (err, item) => {
     if (err) {
-      callback(new Error(`No item with id: ${id}`));
+      callback(err);
     } else {
-      // what should be in the callback?
-      callback(null, { id, text });
+      callback(null, {id: id, text: item.toString()});
     }
   });
 };
