@@ -22,19 +22,20 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
+  // var todos = [];
   fs.readdir('./datastore/data/', 'utf8', (err, files) => {
     if (err) {
       callback(err);
     } else {
-      console.log('FILES', files);
+      // console.log('FILES', files);
       var todos = _.map(files, function(file) {
         var id = path.basename(file, '.txt');
-        console.log('FILE:', file);
-        console.log('ID:', id);
-        return {id: id, text: file};
+        // console.log('FILE:', file);
+        // console.log('ID:', id);
+        return {id: id, text: id};
       });
     }
-    // console.log('todos', todos);
+    // console.log('TODOS', todos);
     callback(null, todos);
   });
 };
@@ -68,15 +69,18 @@ exports.update = (id, text, callback) => {
 };
 
 exports.delete = (id, callback) => {
-  var item = items[id];
-  delete items[id];
-  if (!item) {
-    // report an error if item not found
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback();
-  }
+  let file = path.join(exports.dataDir, `${id}.txt`);
+  fs.unlink(file, function(err, item) {
+
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, item);
+    }
+  });
 };
+
+
 
 // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////
 
