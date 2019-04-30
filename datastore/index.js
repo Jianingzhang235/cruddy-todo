@@ -22,19 +22,32 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+  var todos = [];
+
+  fs.readdir(exports.dataDir, 'utf8', (err, files) => {
+    console.log('FILES:', files);
+    if (err) {
+      console.log('CHECK ERROR:', err);
+    } else {
+      console.log('CHECKING FILES', files);
+      files.forEach(function(file) {
+        todos.push({id: file, text: file});
+      });
+    }
+    callback(null, todos);
   });
-  callback(null, data);
 };
 
 exports.readOne = (id, callback) => {
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+  let file = path.join(exports.dataDir, `${id}.txt`);
+  fs.readFile(file, (err, item) => {
+    if(err) {
+      callback(new Error(`No item with id: ${id}`));
+    } else {
+      // what should be in the callback?
+      callback(null, { id, text });
+    }
+  });
 };
 
 exports.update = (id, text, callback) => {
