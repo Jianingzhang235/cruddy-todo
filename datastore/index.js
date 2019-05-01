@@ -2,6 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
+const Promise = require('bluebird');
+// const readFilePromise = Promise.promisify(fs.readFile);
+
 
 var items = {};
 
@@ -21,22 +24,18 @@ exports.create = (text, callback) => {
   });
 };
 
+// Solution code is not working either! Nothing does!
+// Students mentioned an error with node version so we are giving up this nonsense!
 exports.readAll = (callback) => {
-  // var todos = [];
-  fs.readdir('./datastore/data/', 'utf8', (err, files) => {
-    if (err) {
-      callback(err);
-    } else {
-      // console.log('FILES', files);
-      var todos = _.map(files, function(file) {
-        var id = path.basename(file, '.txt');
-        // console.log('FILE:', file);
-        // console.log('ID:', id);
-        return {id: id, text: id};
+  fs.readdir(exports.dataDir, (err, files) => {
+    var data = _.map(files, (file) => {
+      var id = path.basename(file, '.txt');
+      var filepath = path.join(exports.dataDir, file);
+      return readFilePromise(filepath).then((data) => {
+        return {id: id, text: data.toString()};
       });
-    }
-    // console.log('TODOS', todos);
-    callback(null, todos);
+    });
+    Promise.all(data).then((results) => callback(null, results));
   });
 };
 
